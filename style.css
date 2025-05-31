@@ -198,6 +198,105 @@ li {
     margin-left: 10px;
 }
 
+.button-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.button-row button {
+    flex: 1;
+}
+
+.photo-preview {
+    display: none;
+    margin: 15px 0;
+    position: relative;
+}
+
+.photo-preview.active {
+    display: block;
+}
+
+.photo-preview img {
+    width: 100%;
+    border-radius: 8px;
+    max-height: 200px;
+    object-fit: cover;
+}
+
+.photo-preview .remove-photo {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: rgba(255, 0, 0, 0.8);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.complete-button {
+    background-color: #4CAF50;
+    color: white;
+    width: 100%;
+    margin-top: 15px;
+    font-size: 16px;
+}
+
+.complete-button:hover {
+    background-color: #45a049;
+}
+
+.history-section {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 2px solid #eee;
+}
+
+.history-section h2 {
+    color: #333;
+    font-size: 1.3em;
+    margin-bottom: 15px;
+}
+
+.shopping-history-item {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.history-date {
+    color: #666;
+    font-size: 0.9em;
+    margin-bottom: 10px;
+}
+
+.history-items {
+    list-style: none;
+    margin-left: 15px;
+}
+
+.history-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.history-total {
+    margin-top: 10px;
+    text-align: right;
+    font-weight: bold;
+    color: #4CAF50;
+}
+
 /* Mobil Optimizasyonları */
 @media (max-width: 480px) {
     body {

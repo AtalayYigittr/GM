@@ -2,15 +2,94 @@ document.addEventListener('DOMContentLoaded', () => {
     const itemInput = document.getElementById('item-input');
     const priceInput = document.getElementById('price-input');
     const addButton = document.getElementById('add-button');
-    const scanButton = document.getElementById('scan-button');
+    const photoButton = document.getElementById('photo-button');
+    const photoInput = document.getElementById('photo-input');
+    const photoPreview = document.getElementById('photo-preview');
     const shoppingList = document.getElementById('shopping-list');
-    const viewport = document.getElementById('interactive');
     const totalAmount = document.getElementById('total-amount');
-    let isScanning = false;
-    let editingItemIndex = null;
+    const completeButton = document.getElementById('complete-shopping');
+    const shoppingHistory = document.getElementById('shopping-history');
 
-    // Yerel depolamadan kayıtlı listeyi yükle
+    // Yerel depolamadan kayıtlı listeyi ve geçmişi yükle
     let items = JSON.parse(localStorage.getItem('shoppingList')) || [];
+    let history = JSON.parse(localStorage.getItem('shoppingHistory')) || [];
+
+    // Listeyi güncelle
+    function updateList() {
+        shoppingList.innerHTML = '';
+        items.forEach((item, index) => {
+            const li = document.createElement('li');
+            
+            // Ürün bilgileri
+            const itemInfo = document.createElement('div');
+            itemInfo.className = 'item-info';
+            
+            // Ürün adı ve fiyat
+            const textContent = `${item.name} <span class="item-price">${parseFloat(item.price).toFixed(2)} TL</span>`;
+            
+            // Fotoğraf varsa göster
+            if (item.photo) {
+                const img = document.createElement('img');
+                img.src = item.photo;
+                img.style.maxWidth = '100px';
+                img.style.borderRadius = '4px';
+                li.appendChild(img);
+            }
+            
+            itemInfo.innerHTML = textContent;
+            li.appendChild(itemInfo);
+            
+            // Butonlar
+            const buttonContainer = document.createElement('div');
+            buttonContainer.className = 'button-container';
+            
+            const editBtn = document.createElement('button');
+            editBtn.className = 'barcode-button';
+            editBtn.textContent = 'Düzenle';
+            editBtn.onclick = () => startEditing(index);
+            
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'delete-button';
+            deleteBtn.textContent = 'Sil';
+            deleteBtn.onclick = () => deleteItem(index);
+            
+            buttonContainer.appendChild(editBtn);
+            buttonContainer.appendChild(deleteBtn);
+            li.appendChild(buttonContainer);
+            
+            shoppingList.appendChild(li);
+        });
+        updateTotal();
+        saveToLocalStorage();
+    }
+
+    // Fotoğraf ekleme
+    photoButton.addEventListener('click', () => {
+        photoInput.click();
+    });
+
+    photoInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const photoDataUrl = e.target.result;
+                photoPreview.innerHTML = `
+                    <img src="${photoDataUrl}" alt="Ürün fotoğrafı">
+                    <button class="remove-photo" onclick="removePhoto()">&times;</button>
+                `;
+                photoPreview.classList.add('active');
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Fotoğrafı kaldır
+    window.removePhoto = () => {
+        photoPreview.innerHTML = '';
+        photoPreview.classList.remove('active');
+        photoInput.value = '';
+    };
 
     // Toplam tutarı hesapla ve göster
     function updateTotal() {
@@ -18,122 +97,79 @@ document.addEventListener('DOMContentLoaded', () => {
         totalAmount.textContent = total.toFixed(2);
     }
 
-    // Listeyi güncelle
-    function updateList() {
-        shoppingList.innerHTML = '';
-        items.forEach((item, index) => {
-            const li = document.createElement('li');
-            const itemText = document.createElement('span');
-            itemText.className = 'item-text';
-            
-            // Ürün adı ve barkod
-            let displayText = item.name || item;
-            if (item.barcode) {
-                displayText += ` (Barkod: ${item.barcode})`;
-            }
-            // Fiyat bilgisi
-            if (item.price) {
-                displayText += `<span class="item-price">${parseFloat(item.price).toFixed(2)} TL</span>`;
-            }
-            
-            itemText.innerHTML = displayText;
-            
-            // Çift tıklama ile düzenleme
-            itemText.addEventListener('dblclick', () => startEditing(index));
-            
-            const buttonContainer = document.createElement('div');
-            buttonContainer.className = 'button-container';
-            
-            const priceBtn = document.createElement('button');
-            priceBtn.className = 'barcode-button';
-            priceBtn.textContent = 'Fiyat Düzenle';
-            priceBtn.onclick = () => editPrice(index);
-            
-            const barcodeBtn = document.createElement('button');
-            barcodeBtn.className = 'barcode-button';
-            barcodeBtn.textContent = 'Barkod Ekle';
-            barcodeBtn.onclick = () => addBarcodeToItem(index);
-            
-            const deleteBtn = document.createElement('button');
-            deleteBtn.className = 'delete-button';
-            deleteBtn.textContent = 'Sil';
-            deleteBtn.onclick = () => deleteItem(index);
-            
-            buttonContainer.appendChild(priceBtn);
-            buttonContainer.appendChild(barcodeBtn);
-            buttonContainer.appendChild(deleteBtn);
-            
-            li.appendChild(itemText);
-            li.appendChild(buttonContainer);
-            shoppingList.appendChild(li);
-        });
-        updateTotal();
-        saveToLocalStorage();
-    }
-
-    // Fiyat düzenleme
-    function editPrice(index) {
-        const item = items[index];
-        const currentPrice = item.price || 0;
-        const newPrice = prompt('Yeni fiyatı girin:', currentPrice);
-        
-        if (newPrice !== null) {
-            const parsedPrice = parseFloat(newPrice);
-            if (!isNaN(parsedPrice) && parsedPrice >= 0) {
-                if (typeof item === 'object') {
-                    item.price = parsedPrice;
-                } else {
-                    items[index] = {
-                        name: item,
-                        price: parsedPrice
-                    };
-                }
-                updateList();
-            } else {
-                alert('Lütfen geçerli bir fiyat girin!');
-            }
-        }
-    }
-
     // Düzenleme modunu başlat
     function startEditing(index) {
-        const itemSpan = shoppingList.children[index].querySelector('.item-text');
-        const currentText = items[index].name || items[index];
-        itemSpan.innerHTML = `<input type="text" class="edit-input" value="${currentText}">`;
-        const input = itemSpan.querySelector('input');
-        input.focus();
+        const item = items[index];
+        itemInput.value = item.name;
+        priceInput.value = item.price;
         
-        input.addEventListener('blur', () => finishEditing(index, input));
-        input.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                input.blur();
-            }
-        });
-    }
-
-    // Düzenlemeyi bitir
-    function finishEditing(index, input) {
-        const newValue = input.value.trim();
-        if (newValue && newValue !== (items[index].name || items[index])) {
-            if (typeof items[index] === 'object') {
-                items[index].name = newValue;
-            } else {
-                const price = 0;
-                items[index] = {
-                    name: newValue,
-                    price: price
-                };
-            }
-            updateList();
-        } else {
-            updateList();
+        // Varsa fotoğrafı göster
+        if (item.photo) {
+            photoPreview.innerHTML = `
+                <img src="${item.photo}" alt="Ürün fotoğrafı">
+                <button class="remove-photo" onclick="removePhoto()">&times;</button>
+            `;
+            photoPreview.classList.add('active');
         }
+        
+        // Düzenlenen öğeyi sil
+        deleteItem(index);
     }
 
-    // Ürüne barkod ekle
-    function addBarcodeToItem(index) {
-        editingItemIndex = index;
-        startScanning(true);
+    // Öğe sil
+    function deleteItem(index) {
+        items.splice(index, 1);
+        updateList();
+    }
+
+    // Alışverişi tamamla
+    completeButton.addEventListener('click', () => {
+        if (items.length === 0) {
+            alert('Listede ürün bulunmuyor!');
+            return;
+        }
+
+        const now = new Date();
+        const completed = {
+            date: now.toLocaleString('tr-TR'),
+            items: [...items],
+            total: items.reduce((sum, item) => sum + (parseFloat(item.price) || 0), 0)
+        };
+
+        history.unshift(completed);
+        localStorage.setItem('shoppingHistory', JSON.stringify(history));
+        
+        // Listeyi temizle
+        items = [];
+        updateList();
+        updateHistory();
+    });
+
+    // Geçmiş alışverişleri göster
+    function updateHistory() {
+        shoppingHistory.innerHTML = '';
+        history.forEach((shopping, index) => {
+            const div = document.createElement('div');
+            div.className = 'shopping-history-item';
+            
+            let itemsHtml = '';
+            shopping.items.forEach(item => {
+                itemsHtml += `
+                    <div class="history-item">
+                        <span>${item.name}</span>
+                        <span>${parseFloat(item.price).toFixed(2)} TL</span>
+                    </div>
+                `;
+            });
+
+            div.innerHTML = `
+                <div class="history-date">${shopping.date}</div>
+                <div class="history-items">${itemsHtml}</div>
+                <div class="history-total">Toplam: ${shopping.total.toFixed(2)} TL</div>
+            `;
+            
+            shoppingHistory.appendChild(div);
+        });
     }
 
     // Yerel depolamaya kaydet
@@ -147,92 +183,29 @@ document.addEventListener('DOMContentLoaded', () => {
         const newItemPrice = parseFloat(priceInput.value) || 0;
         
         if (newItemName) {
-            items.push({
+            const newItem = {
                 name: newItemName,
                 price: newItemPrice
-            });
+            };
+
+            // Fotoğraf varsa ekle
+            if (photoPreview.classList.contains('active')) {
+                const img = photoPreview.querySelector('img');
+                if (img) {
+                    newItem.photo = img.src;
+                }
+            }
+
+            items.push(newItem);
             itemInput.value = '';
             priceInput.value = '';
+            removePhoto();
             updateList();
         }
     }
-
-    // Öğe sil
-    function deleteItem(index) {
-        items.splice(index, 1);
-        updateList();
-    }
-
-    // Barkod taramayı başlat
-    function startScanning(isAddingToExisting = false) {
-        if (isScanning) {
-            Quagga.stop();
-            viewport.classList.remove('active');
-            isScanning = false;
-            scanButton.textContent = 'Barkod Tara';
-            return;
-        }
-
-        viewport.classList.add('active');
-        isScanning = true;
-        scanButton.textContent = 'Taramayı Durdur';
-
-        Quagga.init({
-            inputStream: {
-                name: "Live",
-                type: "LiveStream",
-                target: viewport,
-                constraints: {
-                    facingMode: "environment"
-                },
-            },
-            decoder: {
-                readers: ["ean_reader", "ean_8_reader", "code_128_reader", "code_39_reader", "upc_reader"]
-            }
-        }, function(err) {
-            if (err) {
-                console.error(err);
-                alert('Kamera başlatılamadı. Lütfen kamera izinlerini kontrol edin.');
-                return;
-            }
-            Quagga.start();
-        });
-    }
-
-    // Barkod algılandığında
-    Quagga.onDetected(function(result) {
-        if (result.codeResult.code) {
-            const barcode = result.codeResult.code;
-            
-            if (editingItemIndex !== null) {
-                // Mevcut ürüne barkod ekleme
-                const item = items[editingItemIndex];
-                if (typeof item === 'object') {
-                    item.barcode = barcode;
-                } else {
-                    items[editingItemIndex] = {
-                        name: item,
-                        barcode: barcode,
-                        price: 0
-                    };
-                }
-                editingItemIndex = null;
-            } else {
-                // Yeni ürün için barkod
-                itemInput.value = `Ürün (Barkod: ${barcode})`;
-            }
-            
-            Quagga.stop();
-            viewport.classList.remove('active');
-            isScanning = false;
-            scanButton.textContent = 'Barkod Tara';
-            updateList();
-        }
-    });
 
     // Event listeners
     addButton.addEventListener('click', addItem);
-    scanButton.addEventListener('click', () => startScanning(false));
     itemInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter' && priceInput.value) {
             addItem();
@@ -246,4 +219,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // İlk yükleme
     updateList();
+    updateHistory();
 });

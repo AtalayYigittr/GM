@@ -4,12 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Alışveriş Listesi</title>
-    <meta name="description" content="Barkod okuyabilen alışveriş listesi uygulaması">
+    <meta name="description" content="Akıllı alışveriş listesi uygulaması">
     <meta name="theme-color" content="#4CAF50">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/quagga@0.12.1/dist/quagga.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -19,17 +18,24 @@
                 <input type="text" id="item-input" placeholder="Ürün ekleyin...">
                 <input type="number" id="price-input" placeholder="Fiyat" min="0" step="0.01">
             </div>
-            <button id="add-button">Ekle</button>
-            <button id="scan-button">Barkod Tara</button>
+            <div class="button-row">
+                <button id="add-button">Ekle</button>
+                <button id="photo-button">Fotoğraf</button>
+            </div>
         </div>
-        <div id="interactive" class="viewport"></div>
+        <div id="photo-preview" class="photo-preview"></div>
         <ul id="shopping-list"></ul>
         <div class="total-section">
             <h3>Toplam Tutar: <span id="total-amount">0.00</span> TL</h3>
+            <button id="complete-shopping" class="complete-button">Alışverişi Tamamla</button>
+        </div>
+        <div class="history-section">
+            <h2>Geçmiş Alışverişler</h2>
+            <ul id="shopping-history"></ul>
         </div>
     </div>
+    <input type="file" id="photo-input" accept="image/*" capture="environment" style="display: none">
     <script>
-        // Service Worker kayıt
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js')
                 .then(registration => {

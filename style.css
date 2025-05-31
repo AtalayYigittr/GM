@@ -1,0 +1,239 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+}
+
+body {
+    background-color: #f5f5f5;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 15px;
+    touch-action: manipulation;
+}
+
+.container {
+    background-color: white;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 500px;
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+    font-size: 1.8rem;
+}
+
+.input-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.input-group {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+}
+
+#item-input, #price-input {
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    width: 100%;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+#item-input {
+    flex: 2;
+}
+
+#price-input {
+    flex: 1;
+}
+
+.button-container {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+
+button {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s, transform 0.1s;
+    -webkit-appearance: none;
+    appearance: none;
+    touch-action: manipulation;
+    white-space: nowrap;
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+#add-button, #scan-button {
+    width: calc(50% - 5px);
+    margin-top: 10px;
+}
+
+#add-button {
+    background-color: #4CAF50;
+    color: white;
+}
+
+#add-button:hover {
+    background-color: #45a049;
+}
+
+#scan-button {
+    background-color: #2196F3;
+    color: white;
+}
+
+#scan-button:hover {
+    background-color: #1976D2;
+}
+
+.viewport {
+    position: relative;
+    width: 100%;
+    height: 320px;
+    margin: 20px auto;
+    display: none;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.viewport.active {
+    display: block;
+}
+
+#interactive.viewport > video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+li {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    transition: background-color 0.3s;
+}
+
+.item-text {
+    flex: 1;
+    word-break: break-word;
+}
+
+.delete-button {
+    background-color: #ff4444;
+    color: white;
+    padding: 8px 15px;
+    font-size: 14px;
+}
+
+.delete-button:hover {
+    background-color: #cc0000;
+}
+
+.barcode-button {
+    background-color: #9c27b0;
+    color: white;
+    padding: 8px 15px;
+    font-size: 14px;
+}
+
+.barcode-button:hover {
+    background-color: #7b1fa2;
+}
+
+.edit-input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: inherit;
+    font-family: inherit;
+}
+
+.total-section {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 2px solid #eee;
+}
+
+.total-section h3 {
+    color: #333;
+    font-size: 1.2em;
+    text-align: right;
+}
+
+#total-amount {
+    font-weight: bold;
+    color: #4CAF50;
+}
+
+.item-price {
+    font-weight: bold;
+    color: #666;
+    margin-left: 10px;
+}
+
+/* Mobil Optimizasyonları */
+@media (max-width: 480px) {
+    body {
+        padding: 10px;
+    }
+
+    .container {
+        padding: 12px;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+        margin-bottom: 15px;
+    }
+
+    .input-section {
+        gap: 8px;
+    }
+
+    button {
+        padding: 10px 15px;
+        font-size: 15px;
+    }
+
+    .viewport {
+        height: 280px;
+    }
+
+    li {
+        padding: 12px;
+    }
+
+    .button-container button {
+        flex: 1;
+        min-width: calc(33.33% - 5px);
+        padding: 8px;
+        font-size: 13px;
+    }
+}
